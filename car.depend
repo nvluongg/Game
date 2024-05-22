@@ -1,0 +1,36 @@
+# depslib dependency file v1.0
+1716394150 source:c:\baitap\laptrinh\car\game.cpp
+	"game.h"
+
+1716348425 c:\baitap\laptrinh\car\game.h
+	"graphics.h"
+
+1716222819 c:\baitap\laptrinh\car\graphics.h
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+	"defs.h"
+	"sprite.h"
+	"game.h"
+	<fstream>
+	<iostream>
+	<cstring>
+	<ctime>
+	<sstream>
+
+1716386323 c:\baitap\laptrinh\car\defs.h
+
+1716222819 c:\baitap\laptrinh\car\sprite.h
+	<vector>
+	<SDL.h>
+
+1716392904 source:c:\baitap\laptrinh\car\graphics.cpp
+	"graphics.h"
+
+1716222819 source:c:\baitap\laptrinh\car\main.cpp
+	"game.h"
+
+1716392077 source:c:\baitap\laptrinh\car\sprite.cpp
+	"sprite.h"
+
