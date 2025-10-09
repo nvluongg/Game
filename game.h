@@ -44,10 +44,11 @@ struct Game
     int scores;
     int highscore;
     int xboom,yboom;
+    int shieldCount = 0;
     bool isExplode=false;
     int k=0;
     bool musicStarted=false;
-    bool haveShield=false;
+//    bool haveShield=false;
     bool delaygame=false;
     int delay=-1;
     bool isDead=false;
