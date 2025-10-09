@@ -83,6 +83,7 @@ void Game::set()
     car.x=midlane2x;
     car.y=SCREEN_HEIGHT-carsizey;
     //shield
+    shieldCount = 0;
     shield.x=lane[rand()%4];
     shield.y=-2000;
     //scores and speed
@@ -226,8 +227,15 @@ void Game::render()
          graphics.renderTexture(texture[0],325,10);
 
         renderExplode();
-        if(haveShield)
-           graphics.renderTexture(graphics.pic[SHIELD],80,8,32,22);
+        for (int i = 0; i < shieldCount; ++i) {
+    graphics.renderTexture(
+        graphics.pic[SHIELD],
+        SHIELD_ICON_X0 + i * SHIELD_ICON_DX,
+        SHIELD_ICON_Y,
+        SHIELD_ICON_W, SHIELD_ICON_H
+    );
+}
+
      }
     else if(status==Menu)
     {
@@ -259,12 +267,11 @@ void Game::update()
            {    xboom=ocar[i].x;
                 yboom=ocar[i].y;
                 ocar[i].y=-600;
-                if(haveShield==false)
-                {Playerlives--;}
-                if(haveShield)
-                {
-                   shield.x=lane[rand()%4];
-                   haveShield=false;
+                if (shieldCount > 0) {
+                --shieldCount;
+                shield.x = lane[rand()%4];
+                } else {
+                Playerlives--;
                 }
                 isExplode=true;
                  graphics.play(graphics.sound[2]);
@@ -280,17 +287,20 @@ void Game::update()
     } shield.shieldmove();
      if(checkCollision(shield.x,shield.y-80,car.x,car.y))
       {
-        haveShield=true;
-        shield.y=-2500;
-        shield.x=lane[rand()%4];
-        graphics.play(graphics.sound[3]);
+        if (shieldCount < MAX_SHIELDS) {
+        ++shieldCount;
+    }
+    shield.y = -2500;
+    shield.x = lane[rand() % 4];
+
+    graphics.play(graphics.sound[3]);
       } if(!isDead)
        {
         k++;
         if(k%15==0)
             scores++;
         if(k%400==0)
-           speed+=0.1;
+           speed+= 0.5 ;
        }
        gameOver();
            }

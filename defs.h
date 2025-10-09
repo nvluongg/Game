@@ -40,6 +40,13 @@ const int xHeart[3]={10,35,60};
 #define YES 16
 #define NO 17
 
+#define MAX_SHIELDS 3
+#define SHIELD_ICON_W 32
+#define SHIELD_ICON_H 22
+#define SHIELD_ICON_X0 80
+#define SHIELD_ICON_Y 8
+#define SHIELD_ICON_DX 24
+
 enum GameStatus{
       Menu,
       Start,

@@ -1,0 +1,14 @@
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.o
+*.obj
+*.log
+*.tmp
+*.depend
+*.layout
+.DS_Store
+.vscode/
