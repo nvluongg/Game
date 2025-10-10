@@ -2,8 +2,9 @@
 
 void Sprite::init(SDL_Texture* _texture, int frames, const int _clips [][4]) {
     currentFrame = 0;
-    int temp = 0;
+    temp = 0;
     texture = _texture;
+    clips.clear();
 
     SDL_Rect clip;
     for (int i = 0; i < frames; i++) {

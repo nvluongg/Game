@@ -26,6 +26,15 @@ struct Shield
     int x,y;
     void shieldmove();
 };
+struct InvisOrb
+{
+    int x, y;
+    void move();
+};
+struct Coin {
+    int x, y;
+    void move();
+};
 bool checkCollision(int x1,int y1,int x2,int y2);
 struct Game
 {
@@ -36,6 +45,10 @@ struct Game
     Othercar ocar[4];
     Sprite sprite;
     Shield shield;
+    InvisOrb invis;
+    Sprite coinSprite;
+    Coin coin;
+    int coinCount = 0;
 
     GameStatus status=Menu;
 
@@ -48,6 +61,8 @@ struct Game
     bool isExplode=false;
     int k=0;
     bool musicStarted=false;
+    bool isInvisible = false;
+    int invisibleTimer = 0;
 //    bool haveShield=false;
     bool delaygame=false;
     int delay=-1;

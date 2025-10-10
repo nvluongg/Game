@@ -1,4 +1,3 @@
-
 #include "game.h"
 using namespace std;
 extern Graphics graphics;
@@ -63,6 +62,21 @@ void Shield::shieldmove()
         x=lane[rand()%4];
     }
 }
+void InvisOrb::move() {
+    y += speed;
+    if (y > SCREEN_HEIGHT) {
+        y = 0;
+        x = lane[rand()%4];
+    }
+}
+void Coin::move() {
+    y += speed;
+    if (y > SCREEN_HEIGHT) {
+        y = -(300 + rand() % 700);
+        int lanes[4] = { leftlanex, midlane1x, midlane2x, rightlanex };
+        x = lanes[rand() % 4];
+    }
+}
 
 void Game::set()
 {
@@ -86,6 +100,14 @@ void Game::set()
     shieldCount = 0;
     shield.x=lane[rand()%4];
     shield.y=-2000;
+    // invisible orb
+    invis.x = lane[rand()%4];
+    invis.y = -200;
+    //coin
+    int lanes[4] = { leftlanex, midlane1x, midlane2x, rightlanex };
+    coin.x = lanes[rand() % 4];
+    coin.y = -(500 + rand() % 1000);
+    coinCount = 0;
     //scores and speed
     scores=1;
     k=0;
@@ -99,6 +121,20 @@ void Game::prepare()
     graphics.bk.setTexture(graphics.pic[BACKGROUND]);
     set();
     sprite.init(graphics.pic[14],EXPLODE_FRAMES,EXPLODE_CLIPS);
+    {
+        int tw, th;
+        SDL_QueryTexture(graphics.pic[COIN], nullptr, nullptr, &tw, &th);
+        const int fw = tw / COIN_FRAMES, fh = th;
+
+        static int COIN_CLIPS[COIN_FRAMES][4];
+        for (int i = 0; i < COIN_FRAMES; ++i) {
+            COIN_CLIPS[i][0] = i * fw; // x
+            COIN_CLIPS[i][1] = 0;      // y
+            COIN_CLIPS[i][2] = fw;     // w
+            COIN_CLIPS[i][3] = fh;     // h
+        }
+        coinSprite.init(graphics.pic[COIN], COIN_FRAMES, COIN_CLIPS);
+    }
 }
 bool checkCollision(int x1,int y1,int x2,int y2)
 {
@@ -213,8 +249,16 @@ void Game::render()
     if(status==Start)
     { graphics.bk.scroll(speed-1);
       graphics.render(graphics.bk);
+      graphics.renderTexture(graphics.pic[INVIS_ORB], invis.x, invis.y, 60, 60);
       graphics.renderTexture(graphics.pic[SHIELD],shield.x,shield.y);
+      SDL_SetTextureAlphaMod(graphics.pic[MY_CAR], isInvisible ? 128 : 255);
       graphics.renderTexture(graphics.pic[ MY_CAR],car.x,car.y);
+      graphics.renderEx(coin.x, coin.y, 60, 60, coinSprite, 90.0);
+      coinSprite.tick();
+
+      SDL_Texture* coinText = graphics.renderText(renderScore("Coins: ", coinCount),graphics.font, white);
+      graphics.renderTexture(coinText, 10, 40);
+      SDL_DestroyTexture(coinText);
 
       for(int i=0;i<4;i++)
     {
@@ -260,51 +304,92 @@ void Game::render()
 }
 void Game::update()
 {
-   if(status==Start)
-   {for(int i=0;i<4;i++)
-    {    ocar[i].move(i);
-         if(checkCollision(car.x,car.y,ocar[i].x,ocar[i].y))
-           {    xboom=ocar[i].x;
-                yboom=ocar[i].y;
-                ocar[i].y=-600;
-                if (shieldCount > 0) {
-                --shieldCount;
-                shield.x = lane[rand()%4];
-                } else {
-                Playerlives--;
-                }
-                isExplode=true;
-                 graphics.play(graphics.sound[2]);
-              if (Playerlives < 0)
-            {
-                delaygame = true;
-                isDead=true;
-            }
-          }
-        for(int j=i+1;j<4;j++)
-            if(checkCollision(ocar[i].x,ocar[i].y+50,ocar[j].x,ocar[j].y))
-                ocar[j].y-=400;
-    } shield.shieldmove();
-     if(checkCollision(shield.x,shield.y-80,car.x,car.y))
-      {
-        if (shieldCount < MAX_SHIELDS) {
-        ++shieldCount;
-    }
-    shield.y = -2500;
-    shield.x = lane[rand() % 4];
+    if (status == Start)
+    {
 
-    graphics.play(graphics.sound[3]);
-      } if(!isDead)
-       {
-        k++;
-        if(k%15==0)
-            scores++;
-        if(k%400==0)
-           speed+= 0.5 ;
-       }
-       gameOver();
-           }
+        if (isInvisible) {
+            if (--invisibleTimer <= 0) isInvisible = false;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            ocar[i].move(i);
+
+
+            if (!isInvisible && checkCollision(car.x, car.y, ocar[i].x, ocar[i].y))
+            {
+                xboom = ocar[i].x;
+                yboom = ocar[i].y;
+                ocar[i].y = -600;
+
+                if (shieldCount > 0) {
+                    --shieldCount;
+                    shield.x = lane[rand() % 4];
+                } else {
+                    Playerlives--;
+                }
+
+                isExplode = true;
+                graphics.play(graphics.sound[2]);
+
+                if (Playerlives < 0) {
+                    delaygame = true;
+                    isDead = true;
+                }
+            }
+
+            for (int j = i + 1; j < 4; j++)
+                if (checkCollision(ocar[i].x, ocar[i].y + 50, ocar[j].x, ocar[j].y))
+                    ocar[j].y -= 400;
+        }
+
+
+        shield.shieldmove();
+        if (checkCollision(shield.x, shield.y - 80, car.x, car.y))
+        {
+            if (shieldCount < MAX_SHIELDS) {
+                ++shieldCount;
+            }
+            shield.y = -2500;
+            shield.x = lane[rand() % 4];
+            graphics.play(graphics.sound[3]);
+        }
+
+
+        invis.move();
+        if (checkCollision(invis.x, invis.y - 80, car.x, car.y))
+        {
+            isInvisible = true;
+            invisibleTimer = INVIS_DURATION;
+            invis.y = -2500;
+            invis.x = lane[rand() % 4];
+            graphics.play(graphics.sound[3]);
+        }
+        coin.move();
+        if (checkCollision(coin.x, coin.y - 80, car.x, car.y)) {
+            ++coinCount;
+            graphics.play(graphics.sound[3]);
+
+            coin.y = -(500 + rand() % 1000);
+            coin.x = lane[rand() % 4];
+
+            if (coinCount >= 3) {
+                scores += 100;
+                coinCount = 0;
+            }
+        }
+
+        if (!isDead)
+        {
+            k++;
+            if (k % 15 == 0) scores++;
+            if (k % 400 == 0) speed += 0.5;
+        }
+
+        gameOver();
+    }
 }
+
 void Game::run()
 {
 

@@ -39,6 +39,11 @@ const int xHeart[3]={10,35,60};
 #define SHIELD 15
 #define YES 16
 #define NO 17
+#define INVIS_ORB 18
+#define SND_INVIS 3
+#define INVIS_DURATION 200
+#define COIN 19
+#define COIN_FRAMES 7
 
 #define MAX_SHIELDS 3
 #define SHIELD_ICON_W 32
@@ -67,8 +72,6 @@ const int EXPLODE_CLIPS[][4] = {
     {540,0,60,60},
     {600,0,60,60},
     {660,0,60,60},
-
-
 };
 
 const int EXPLODE_FRAMES = sizeof(EXPLODE_CLIPS) / sizeof(int) / 4;
