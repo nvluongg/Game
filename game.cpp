@@ -69,6 +69,7 @@ void InvisOrb::move() {
         x = lane[rand()%4];
     }
 }
+
 void Coin::move() {
     y += speed;
     if (y > SCREEN_HEIGHT) {
@@ -77,6 +78,9 @@ void Coin::move() {
         x = lanes[rand() % 4];
     }
 }
+
+
+
 
 void Game::set()
 {
@@ -103,11 +107,14 @@ void Game::set()
     // invisible orb
     invis.x = lane[rand()%4];
     invis.y = -200;
+
     //coin
     int lanes[4] = { leftlanex, midlane1x, midlane2x, rightlanex };
     coin.x = lanes[rand() % 4];
     coin.y = -(500 + rand() % 1000);
     coinCount = 0;
+
+
     //scores and speed
     scores=1;
     k=0;
@@ -365,6 +372,7 @@ void Game::update()
             invis.x = lane[rand() % 4];
             graphics.play(graphics.sound[3]);
         }
+
         coin.move();
         if (checkCollision(coin.x, coin.y - 80, car.x, car.y)) {
             ++coinCount;
@@ -378,6 +386,7 @@ void Game::update()
                 coinCount = 0;
             }
         }
+
 
         if (!isDead)
         {

@@ -37,10 +37,7 @@
 1759977062 source:c:\uet\term 2\laptrinh\game\main.cpp
 	"game.h"
 
-1760120787 c:\uet\term 2\laptrinh\game\game.h
-	"graphics.h"
 
-1760121829 c:\uet\term 2\laptrinh\game\graphics.h
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
@@ -54,18 +51,4 @@
 	<ctime>
 	<sstream>
 
-1760119543 c:\uet\term 2\laptrinh\game\defs.h
-
-1760117126 c:\uet\term 2\laptrinh\game\sprite.h
-	<vector>
-	<SDL.h>
-
-1760120787 source:c:\uet\term 2\laptrinh\game\sprite.cpp
-	"sprite.h"
-
-1760121829 source:c:\uet\term 2\laptrinh\game\graphics.cpp
-	"graphics.h"
-
-1760121829 source:c:\uet\term 2\laptrinh\game\game.cpp
-	"game.h"
 
