@@ -34,3 +34,35 @@
 1716392077 source:c:\baitap\laptrinh\car\sprite.cpp
 	"sprite.h"
 
+1759977062 source:c:\uet\term 2\laptrinh\game\main.cpp
+	"game.h"
+
+1760002560 c:\uet\term 2\laptrinh\game\game.h
+	"graphics.h"
+
+1759977062 c:\uet\term 2\laptrinh\game\graphics.h
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+	"defs.h"
+	"sprite.h"
+	"game.h"
+	<fstream>
+	<iostream>
+	<cstring>
+	<ctime>
+	<sstream>
+
+1760070529 c:\uet\term 2\laptrinh\game\defs.h
+
+1759977062 c:\uet\term 2\laptrinh\game\sprite.h
+	<vector>
+	<SDL.h>
+
+1759977062 source:c:\uet\term 2\laptrinh\game\sprite.cpp
+	"sprite.h"
+
+1760070529 source:c:\uet\term 2\laptrinh\game\graphics.cpp
+	"graphics.h"
+

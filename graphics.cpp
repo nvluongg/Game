@@ -22,6 +22,9 @@ void Graphics::loadMedia()
     pic.push_back(loadTexture("assets/shield1.png"));
     pic.push_back(loadTexture("assets/yes.png"));
     pic.push_back(loadTexture("assets/no.png"));
+    pic.push_back(loadTexture("assets/invisible_orb.png"));
+    if (pic.back()) SDL_SetTextureBlendMode(pic.back(), SDL_BLENDMODE_BLEND);
+
 
     font=loadFont("assets/DroidSans.ttf",18);
 
