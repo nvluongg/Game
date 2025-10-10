@@ -25,6 +25,9 @@ void Graphics::loadMedia()
     pic.push_back(loadTexture("assets/invisible_orb.png"));
     if (pic.back()) SDL_SetTextureBlendMode(pic.back(), SDL_BLENDMODE_BLEND);
 
+    pic.push_back(loadTexture("assets/coin_strip.png"));
+
+
 
     font=loadFont("assets/DroidSans.ttf",18);
 
@@ -36,6 +39,23 @@ void Graphics::loadMedia()
     sound.push_back(loadSound("assets/crash.mp3"));
     sound.push_back(loadSound("assets/gain.mp3"));
 }
+
+void Graphics::render(int x, int y, int w, int h, const Sprite& sprite)
+{
+    const SDL_Rect* clip = sprite.getCurrentClip();
+    SDL_Rect dst { x, y, w, h };
+    SDL_RenderCopy(renderer, sprite.texture, clip, &dst);
+}
+
+void Graphics::renderEx(int x, int y, int w, int h, const Sprite& sprite, double angle, SDL_RendererFlip flip)
+{
+    const SDL_Rect* src = sprite.getCurrentClip();
+    SDL_Rect dst{ x, y, w, h };
+    SDL_RenderCopyEx(renderer, sprite.texture, src, &dst, angle, nullptr, flip);
+}
+
+
+
 void Graphics::free()
 {
     for(int i=0;i<pic.size();i++)

@@ -32,6 +32,13 @@ struct InvisOrb
     void move();
 };
 
+struct Coin {
+    int x, y;
+    void move();
+};
+
+
+
 bool checkCollision(int x1,int y1,int x2,int y2);
 struct Game
 {
@@ -43,6 +50,12 @@ struct Game
     Sprite sprite;
     Shield shield;
     InvisOrb invis;
+
+    Sprite coinSprite;
+    Coin coin;
+    int coinCount = 0;
+
+
 
     GameStatus status=Menu;
 

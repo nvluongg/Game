@@ -52,6 +52,9 @@ struct Graphics{
     void renderTexture(SDL_Texture *texture, int x, int y,int w,int h);
 
     void render(const Scrollbk& background);
+    void render(int x, int y, int w, int h, const Sprite& sprite);
+    void renderEx(int x, int y, int w, int h, const Sprite& sprite, double angle, SDL_RendererFlip flip = SDL_FLIP_NONE);
+
 
     Mix_Music* loadMusic(const char* filename);
     void play(Mix_Music* gMusic);
