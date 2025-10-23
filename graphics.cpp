@@ -24,9 +24,8 @@ void Graphics::loadMedia()
     pic.push_back(loadTexture("assets/no.png"));
     pic.push_back(loadTexture("assets/invisible_orb.png"));
     if (pic.back()) SDL_SetTextureBlendMode(pic.back(), SDL_BLENDMODE_BLEND);
-
     pic.push_back(loadTexture("assets/coin_strip.png"));
-
+    pic.push_back(loadTexture("assets/truck.png"));
 
 
     font=loadFont("assets/DroidSans.ttf",18);

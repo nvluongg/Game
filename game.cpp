@@ -16,15 +16,17 @@ void Mycar::moveDown()
 }
 void Mycar::turnLeft()
 {
-      x-=lanesize;
-      if(x<leftlanex)
-      x+=lanesize;
+    if (laneIdx > 0) {
+        laneIdx--;
+        x = lane[laneIdx];
+    }
 }
 void Mycar::turnRight()
 {
-      x+=lanesize;
-      if(x>rightlanex)
-      x-=lanesize;
+      if (laneIdx < 3) {
+        laneIdx++;
+        x = lane[laneIdx];
+    }
 }
 void Mycar::Mycarmove(SDL_Event &event)
 {
@@ -81,7 +83,6 @@ void Coin::move() {
 
 
 
-
 void Game::set()
 {
     ocar[0].x=lane[rand()%2+2];
@@ -98,8 +99,9 @@ void Game::set()
       ocar[i].y=ocar[i-1].y-(rand()%101+400);
     }
     //my car
-    car.x=midlane2x;
-    car.y=SCREEN_HEIGHT-carsizey;
+    car.laneIdx = 2;
+    car.x = lane[car.laneIdx];
+    car.y = SCREEN_HEIGHT - carsizey;
     //shield
     shieldCount = 0;
     shield.x=lane[rand()%4];
@@ -107,20 +109,23 @@ void Game::set()
     // invisible orb
     invis.x = lane[rand()%4];
     invis.y = -200;
-
     //coin
     int lanes[4] = { leftlanex, midlane1x, midlane2x, rightlanex };
     coin.x = lanes[rand() % 4];
     coin.y = -(500 + rand() % 1000);
     coinCount = 0;
-
+    //truck
+    boss.active = false;
+    boss.texture = graphics.pic[TRUCK];
+    boss.x = lane[rand()%4];
+    boss.y = -BOSS_H;
+    nextBossScore = 200;
 
     //scores and speed
     scores=1;
     k=0;
     speed=3;
     // font
-
 }
 
 void Game::prepare()
@@ -267,6 +272,9 @@ void Game::render()
       graphics.renderTexture(coinText, 10, 40);
       SDL_DestroyTexture(coinText);
 
+      if (boss.active)
+        graphics.renderTexture(boss.texture, boss.x, boss.y, BOSS_W, BOSS_H);
+
       for(int i=0;i<4;i++)
     {
         graphics.renderTexture(ocar[i].texture,ocar[i].x,ocar[i].y);
@@ -279,7 +287,7 @@ void Game::render()
 
         renderExplode();
         for (int i = 0; i < shieldCount; ++i) {
-    graphics.renderTexture(
+        graphics.renderTexture(
         graphics.pic[SHIELD],
         SHIELD_ICON_X0 + i * SHIELD_ICON_DX,
         SHIELD_ICON_Y,
@@ -313,7 +321,6 @@ void Game::update()
 {
     if (status == Start)
     {
-
         if (isInvisible) {
             if (--invisibleTimer <= 0) isInvisible = false;
         }
@@ -321,8 +328,6 @@ void Game::update()
         for (int i = 0; i < 4; i++)
         {
             ocar[i].move(i);
-
-
             if (!isInvisible && checkCollision(car.x, car.y, ocar[i].x, ocar[i].y))
             {
                 xboom = ocar[i].x;
@@ -350,7 +355,7 @@ void Game::update()
                     ocar[j].y -= 400;
         }
 
-
+//shield
         shield.shieldmove();
         if (checkCollision(shield.x, shield.y - 80, car.x, car.y))
         {
@@ -362,7 +367,7 @@ void Game::update()
             graphics.play(graphics.sound[3]);
         }
 
-
+//invisible
         invis.move();
         if (checkCollision(invis.x, invis.y - 80, car.x, car.y))
         {
@@ -372,7 +377,7 @@ void Game::update()
             invis.x = lane[rand() % 4];
             graphics.play(graphics.sound[3]);
         }
-
+//coin
         coin.move();
         if (checkCollision(coin.x, coin.y - 80, car.x, car.y)) {
             ++coinCount;
@@ -386,8 +391,42 @@ void Game::update()
                 coinCount = 0;
             }
         }
+//truck
 
+        if (!boss.active && scores >= nextBossScore) {
+            boss.active = true;
+            int i = rand() % 3;
+            boss.x = lane[i] - ( (BOSS_W - lanesize) / 2 );
+            boss.y = -BOSS_H;
+            boss.vy = speed + BOSS_SPEED_ADD;
+        }
+        if (boss.active) {
+            boss.y += boss.vy;
 
+            for (int i = 0; i < 4; ++i)
+                if (ocar[i].x == boss.x && checkCollision(ocar[i].x, ocar[i].y+50, boss.x, boss.y))
+                    ocar[i].y -= 400;
+
+            if (!isInvisible && checkCollision(car.x, car.y, boss.x, boss.y)) {
+                xboom = boss.x; yboom = boss.y; isExplode = true;
+                graphics.play(graphics.sound[2]);
+                if (shieldCount > 0) {
+                    --shieldCount;
+                } else {
+                    Playerlives -= 2;
+                }
+                boss.active = false;
+                nextBossScore += BOSS_SCORE_STEP;
+                if (Playerlives < 0) { delaygame = true; isDead = true; }
+            }
+
+            if (boss.y > SCREEN_HEIGHT) {
+                boss.active = false;
+                nextBossScore += BOSS_SCORE_STEP;
+            }
+        }
+
+//dead
         if (!isDead)
         {
             k++;
