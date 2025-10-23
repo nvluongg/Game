@@ -7,16 +7,15 @@
 
 #define carspeed 15
 
-#define lanesize  59
-#define leftlanex  100
+#define lanesize  67
+#define leftlanex  120
 #define midlane1x  leftlanex + lanesize
 #define midlane2x  midlane1x + lanesize
 #define rightlanex  midlane2x + lanesize
+const int lane[4] = { leftlanex, midlane1x, midlane2x, rightlanex };
 
 #define carsizex 50
 #define carsizey 100
-
-const int lane[4]={leftlanex,midlane1x,midlane2x,rightlanex};
 
 const int xHeart[3]={10,35,60};
 #define yHeart 10
@@ -40,18 +39,20 @@ const int xHeart[3]={10,35,60};
 #define YES 16
 #define NO 17
 #define INVIS_ORB 18
+#define TRUCK 20
 
+//TRUCK
+#define BOSS_W  (lanesize * 2 - 10)
+#define BOSS_H  220
+#define BOSS_SPEED_ADD 0.3f
+#define BOSS_SCORE_STEP 200
+//INVIS
 #define SND_INVIS 3
 #define INVIS_DURATION 200
+//COIN
 #define COIN 19
 #define COIN_FRAMES 7
-
-
-#define SND_INVIS 3
-#define INVIS_DURATION 200
-
-
-
+//3Shield
 #define MAX_SHIELDS 3
 #define SHIELD_ICON_W 32
 #define SHIELD_ICON_H 22

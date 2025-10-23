@@ -5,6 +5,7 @@
 struct Mycar
 {
    int x,y;
+   int laneIdx = 2;
    Mycar(){}
 
    void moveUp();
@@ -31,12 +32,17 @@ struct InvisOrb
     int x, y;
     void move();
 };
-
 struct Coin {
     int x, y;
     void move();
 };
-
+struct BossTruck {
+    int x, y;
+    bool active;
+    int laneIdx;
+    float vy;
+    SDL_Texture* texture;
+};
 
 
 bool checkCollision(int x1,int y1,int x2,int y2);
@@ -50,11 +56,11 @@ struct Game
     Sprite sprite;
     Shield shield;
     InvisOrb invis;
-
     Sprite coinSprite;
     Coin coin;
     int coinCount = 0;
-
+    BossTruck boss;
+    int nextBossScore;
 
 
     GameStatus status=Menu;
@@ -94,9 +100,6 @@ struct Game
     void render();
     void update();
     void run();
-
-
-
 };
 
 
