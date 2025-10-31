@@ -27,6 +27,17 @@ void Graphics::loadMedia()
     pic.push_back(loadTexture("assets/coin_strip.png"));
     pic.push_back(loadTexture("assets/truck.png"));
 
+    //
+    pic.push_back(loadTexture("assets/shopbutton.png"));
+    pic.push_back(loadTexture("assets/unselectshop.png"));
+    pic.push_back(loadTexture("assets/shop_bg.png"));
+    pic.push_back(loadTexture("assets/car_black.png"));
+    pic.push_back(loadTexture("assets/car_purple.png"));
+    pic.push_back(loadTexture("assets/car_white.png"));
+    pic.push_back(loadTexture("assets/buybutton.png"));
+    pic.push_back(loadTexture("assets/unselectbuy.png"));
+    //
+
 
     font=loadFont("assets/DroidSans.ttf",18);
 

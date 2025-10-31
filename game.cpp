@@ -172,12 +172,62 @@ return false;
 }
 bool Game::menuToExit(int x,int y)
 {
-    if(xMouse>140&&xMouse<280&&yMouse>220&&yMouse<332)
+    if(xMouse>140&&xMouse<280&&yMouse>220&&yMouse<330)
     {
             return true;
           }
 return false;
 }
+bool Game::menuToShop(int x,int y)
+{
+    if(xMouse>140&&xMouse<280&&yMouse>320&&yMouse<430)
+    {
+            return true;
+          }
+return false;
+}
+bool Game::shopToExit(int x, int y)
+{
+    if (x > 150 && x < 290 && y > 580 && y < 640)
+        return true;
+    return false;
+}
+bool Game::shopBuyGreen(int mx, int my) {
+    int bx = 60;
+    int by = 260;
+    int bw = 140;
+    int bh = 50;
+    return (mx > bx && mx < bx + bw &&
+            my > by && my < by + bh);
+}
+
+bool Game::shopBuyBlack(int mx, int my) {
+    int bx = 280;
+    int by = 260;
+    int bw = 140;
+    int bh = 50;
+    return (mx > bx && mx < bx + bw &&
+            my > by && my < by + bh);
+}
+
+bool Game::shopBuyPurple(int mx, int my) {
+    int bx = 60;
+    int by = 470;
+    int bw = 140;
+    int bh = 50;
+    return (mx > bx && mx < bx + bw &&
+            my > by && my < by + bh);
+}
+
+bool Game::shopBuyWhite(int mx, int my) {
+    int bx = 280;
+    int by = 520;
+    int bw = 140;
+    int bh = 50;
+    return (mx > bx && mx < bx + bw &&
+            my > by && my < by + bh);
+}
+
 bool Game::overToPlayAgain(int x,int y)
 {
      if(xMouse>187&&xMouse<240&&yMouse>431&&yMouse<442)
@@ -263,8 +313,8 @@ void Game::render()
       graphics.render(graphics.bk);
       graphics.renderTexture(graphics.pic[INVIS_ORB], invis.x, invis.y, 60, 60);
       graphics.renderTexture(graphics.pic[SHIELD],shield.x,shield.y);
-      SDL_SetTextureAlphaMod(graphics.pic[MY_CAR], isInvisible ? 128 : 255);
-      graphics.renderTexture(graphics.pic[ MY_CAR],car.x,car.y);
+      SDL_SetTextureAlphaMod(graphics.pic[currentSkin], isInvisible ? 128 : 255);
+      graphics.renderTexture(graphics.pic[currentSkin], car.x, car.y, carsizex, carsizey);
       graphics.renderEx(coin.x, coin.y, 60, 60, coinSprite, 90.0);
       coinSprite.tick();
 
@@ -302,8 +352,10 @@ void Game::render()
       graphics.renderTexture(graphics.pic[UNSELECT_PLAY],150,140);
       graphics.renderTexture(graphics.pic[TITLE],45,90);
       graphics.renderTexture(graphics.pic[UNSELECT_EXIT],150,220);
+      graphics.renderTexture(graphics.pic[UNSELECT_SHOP],150,300, 200, 73);
       if(menuToStart(xMouse,yMouse)) graphics.renderTexture(graphics.pic[PLAY_BUTTON],150,140);
       if(menuToExit(xMouse,yMouse)) graphics.renderTexture(graphics.pic[EXIT_BUTTON],150,220);
+      if(menuToShop(xMouse,yMouse)) graphics.renderTexture(graphics.pic[SHOP_BUTTON],150,300, 200, 73);
     }
     else if(status==GameOver)
     {
@@ -312,10 +364,101 @@ void Game::render()
             graphics.renderTexture(graphics.pic[YES],156,410);
          if(overToQuit(xMouse,yMouse))
             graphics.renderTexture(graphics.pic[NO],233,409,130,60);
-        graphics.renderTexture(texture[0],70,30);
-        texture[1]=graphics.renderText(renderScore("High scores: ",highscore),graphics.font,white);
-        graphics.renderTexture(texture[1],70,50);
+            graphics.renderTexture(texture[0],70,30);
+            texture[1]=graphics.renderText(renderScore("High scores: ",highscore),graphics.font,white);
+            graphics.renderTexture(texture[1],70,50);
    }
+   else if(status == Shop)
+    {
+        // Nền shop full
+        graphics.renderTexture(graphics.pic[SHOP_BG], 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        // Kích thước xe theo ý bạn:
+        const int carW = 100;
+        const int carH = 150;
+
+        // Tọa độ 4 xe
+        const int xGreen  = 60;   const int yGreen  = 120;  // MY_CAR
+        const int xBlack  = 280;  const int yBlack  = 120;  // CAR_BLACK
+        const int xPurple = 60;   const int yPurple = 320;  // CAR_PURPLE
+        const int xWhite  = 280;  const int yWhite  = 320;  // CAR_WHITE
+
+        // Vẽ xe
+        graphics.renderTexture(graphics.pic[MY_CAR],      xGreen,  yGreen,  carW, carH);
+        graphics.renderTexture(graphics.pic[CAR_BLACK],   xBlack,  yBlack,  carW, carH);
+        graphics.renderTexture(graphics.pic[CAR_PURPLE],  xPurple, yPurple, carW, carH);
+        graphics.renderTexture(graphics.pic[CAR_WHITE],   xWhite,  yWhite,  carW, carH);
+
+        // Vẽ giá ("0VND") giữ đúng vị trí bạn đang có
+        SDL_Texture* t1 = graphics.renderText("0VND", graphics.font, white);
+        graphics.renderTexture(t1,  90, 250);
+        SDL_DestroyTexture(t1);
+
+        SDL_Texture* t2 = graphics.renderText("0VND", graphics.font, white);
+        graphics.renderTexture(t2, 310, 250);
+        SDL_DestroyTexture(t2);
+
+        SDL_Texture* t3 = graphics.renderText("0VND", graphics.font, white);
+        graphics.renderTexture(t3,  90, 450);
+        SDL_DestroyTexture(t3);
+
+        SDL_Texture* t4 = graphics.renderText("0VND", graphics.font, white);
+        graphics.renderTexture(t4, 310, 450);
+        SDL_DestroyTexture(t4);
+
+        // ===== NÚT BUY CHO TỪNG XE =====
+        const int buyW = 110;
+        const int buyH = 40;
+
+        // Xe xanh
+        int buyGreenX = 60;
+        int buyGreenY = 270; // ngay sau "0VND" của xe xanh
+        bool hoverGreen =
+            (xMouse > buyGreenX && xMouse < buyGreenX + buyW &&
+             yMouse > buyGreenY && yMouse < buyGreenY + buyH);
+        graphics.renderTexture(
+            graphics.pic[ hoverGreen ? BUY_BUTTON : UNSELECT_BUY ],
+            buyGreenX, buyGreenY, buyW, buyH
+        );
+
+        // Xe đen
+        int buyBlackX = 280;
+        int buyBlackY = 270;
+        bool hoverBlack =
+            (xMouse > buyBlackX && xMouse < buyBlackX + buyW &&
+             yMouse > buyBlackY && yMouse < buyBlackY + buyH);
+        graphics.renderTexture(
+            graphics.pic[ hoverBlack ? BUY_BUTTON : UNSELECT_BUY ],
+            buyBlackX, buyBlackY, buyW, buyH
+        );
+
+        // Xe tím
+        int buyPurpleX = 60;
+        int buyPurpleY = 470;
+        bool hoverPurple =
+            (xMouse > buyPurpleX && xMouse < buyPurpleX + buyW &&
+             yMouse > buyPurpleY && yMouse < buyPurpleY + buyH);
+        graphics.renderTexture(
+            graphics.pic[ hoverPurple ? BUY_BUTTON : UNSELECT_BUY ],
+            buyPurpleX, buyPurpleY, buyW, buyH
+        );
+
+        // Xe trắng
+        int buyWhiteX = 280;
+        int buyWhiteY = 470;
+        bool hoverWhite =
+            (xMouse > buyWhiteX && xMouse < buyWhiteX + buyW &&
+             yMouse > buyWhiteY && yMouse < buyWhiteY + buyH);
+        graphics.renderTexture(
+            graphics.pic[ hoverWhite ? BUY_BUTTON : UNSELECT_BUY ],
+            buyWhiteX, buyWhiteY, buyW, buyH
+        );
+
+        // ===== nút EXIT =====
+        graphics.renderTexture(graphics.pic[UNSELECT_EXIT], 150, 580);
+        if (shopToExit(xMouse, yMouse))
+        graphics.renderTexture(graphics.pic[EXIT_BUTTON], 150, 580);
+    }
 }
 void Game::update()
 {
@@ -392,7 +535,6 @@ void Game::update()
             }
         }
 //truck
-
         if (!boss.active && scores >= nextBossScore) {
             boss.active = true;
             int i = rand() % 3;
@@ -453,11 +595,36 @@ void Game::run()
              {
                 if(menuToStart(xMouse,yMouse))
                  {
-                  graphics.play(graphics.sound[0]);
-                  status=Start;
+                    graphics.play(graphics.sound[0]);
+                    status=Start;
                  }
+                 //
+                 else if(menuToShop(xMouse,yMouse))
+                 {
+                    status=Shop;
+                 }
+                 //
                 else if(menuToExit(xMouse,yMouse))
                     status=QuitGame;
+             }
+             else if(status==Shop)
+             {
+                 if (shopBuyGreen(xMouse, yMouse)) {
+                    currentSkin = MY_CAR;
+                }
+                else if (shopBuyBlack(xMouse, yMouse)) {
+                    currentSkin = CAR_BLACK;
+                }
+                else if (shopBuyPurple(xMouse, yMouse)) {
+                    currentSkin = CAR_PURPLE;
+                }
+                else if (shopBuyWhite(xMouse, yMouse)) {
+                    currentSkin = CAR_WHITE;
+                }
+                 if (shopToExit(xMouse, yMouse))
+                 {
+                     status = Menu;
+                 }
              }
              else if((status==GameOver))
              {

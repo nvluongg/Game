@@ -14,8 +14,8 @@
 #define rightlanex  midlane2x + lanesize
 const int lane[4] = { leftlanex, midlane1x, midlane2x, rightlanex };
 
-#define carsizex 50
-#define carsizey 100
+#define carsizex 70
+#define carsizey 120
 
 const int xHeart[3]={10,35,60};
 #define yHeart 10
@@ -40,6 +40,14 @@ const int xHeart[3]={10,35,60};
 #define NO 17
 #define INVIS_ORB 18
 #define TRUCK 20
+#define SHOP_BUTTON 21
+#define UNSELECT_SHOP 22
+#define SHOP_BG 23
+#define CAR_BLACK 24
+#define CAR_PURPLE 25
+#define CAR_WHITE 26
+#define BUY_BUTTON 27
+#define UNSELECT_BUY 28
 
 //TRUCK
 #define BOSS_W  (lanesize * 2 - 10)
@@ -64,6 +72,7 @@ enum GameStatus{
       Menu,
       Start,
       GameOver,
+      Shop,
       QuitGame
 };
 

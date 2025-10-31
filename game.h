@@ -52,6 +52,7 @@ struct Game
     SDL_Texture* texture[2];
 
     Mycar car;
+    int currentSkin = MY_CAR;
     Othercar ocar[4];
     Sprite sprite;
     Shield shield;
@@ -91,6 +92,12 @@ struct Game
     void getMousePos(int &x,int &y);
     bool menuToStart(int x,int y);
     bool menuToExit(int x,int y);
+    bool menuToShop(int x,int y);
+    bool shopToExit(int x,int y);
+    bool shopBuyGreen(int x, int y);
+    bool shopBuyBlack(int x, int y);
+    bool shopBuyPurple(int x, int y);
+    bool shopBuyWhite(int x, int y);
     bool overToPlayAgain(int x,int y);
     bool overToQuit(int x,int y);
     void prepare();
