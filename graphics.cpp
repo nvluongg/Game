@@ -26,8 +26,6 @@ void Graphics::loadMedia()
     if (pic.back()) SDL_SetTextureBlendMode(pic.back(), SDL_BLENDMODE_BLEND);
     pic.push_back(loadTexture("assets/coin_strip.png"));
     pic.push_back(loadTexture("assets/truck.png"));
-
-    //
     pic.push_back(loadTexture("assets/shopbutton.png"));
     pic.push_back(loadTexture("assets/unselectshop.png"));
     pic.push_back(loadTexture("assets/shop_bg.png"));
@@ -36,8 +34,8 @@ void Graphics::loadMedia()
     pic.push_back(loadTexture("assets/car_white.png"));
     pic.push_back(loadTexture("assets/buybutton.png"));
     pic.push_back(loadTexture("assets/unselectbuy.png"));
-    //
-
+    pic.push_back(loadTexture("assets/pausebutton.png"));
+    pic.push_back(loadTexture("assets/unselectpause.png"));
 
     font=loadFont("assets/DroidSans.ttf",18);
 

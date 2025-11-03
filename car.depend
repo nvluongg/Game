@@ -49,7 +49,7 @@
 	<ctime>
 	<sstream>
 
-1761795494 c:\uet\term 2\laptrinh\game\game.h
+1762182944 c:\uet\term 2\laptrinh\game\game.h
 	"graphics.h"
 
 1760194976 c:\uet\term 2\laptrinh\game\graphics.h
@@ -66,13 +66,13 @@
 	<ctime>
 	<sstream>
 
-1761796330 c:\uet\term 2\laptrinh\game\defs.h
+1762182788 c:\uet\term 2\laptrinh\game\defs.h
 
 1760117126 c:\uet\term 2\laptrinh\game\sprite.h
 	<vector>
 	<SDL.h>
 
-1761793509 source:c:\uet\term 2\laptrinh\game\graphics.cpp
+1762182831 source:c:\uet\term 2\laptrinh\game\graphics.cpp
 	"graphics.h"
 
 1760194976 source:c:\uet\term 2\laptrinh\game\sprite.cpp
