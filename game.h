@@ -98,6 +98,9 @@ struct Game
     bool shopBuyBlack(int x, int y);
     bool shopBuyPurple(int x, int y);
     bool shopBuyWhite(int x, int y);
+
+    bool onPauseBtn(int x, int y);
+
     bool overToPlayAgain(int x,int y);
     bool overToQuit(int x,int y);
     void prepare();

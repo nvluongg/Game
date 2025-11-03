@@ -48,6 +48,8 @@ const int xHeart[3]={10,35,60};
 #define CAR_WHITE 26
 #define BUY_BUTTON 27
 #define UNSELECT_BUY 28
+#define PAUSE_BUTTON 29
+#define UNSELECT_PAUSE 30
 
 //TRUCK
 #define BOSS_W  (lanesize * 2 - 10)
@@ -73,6 +75,7 @@ enum GameStatus{
       Start,
       GameOver,
       Shop,
+      PauseGame,
       QuitGame
 };
 

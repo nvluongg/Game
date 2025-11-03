@@ -227,7 +227,12 @@ bool Game::shopBuyWhite(int mx, int my) {
     return (mx > bx && mx < bx + bw &&
             my > by && my < by + bh);
 }
-
+bool Game::onPauseBtn(int mx, int my) {
+    const int w = 120, h = 45;
+    const int x = SCREEN_WIDTH - w - 10;
+    const int y = 40;
+    return (mx > x && mx < x + w && my > y && my < y + h);
+}
 bool Game::overToPlayAgain(int x,int y)
 {
      if(xMouse>187&&xMouse<240&&yMouse>431&&yMouse<442)
@@ -342,10 +347,17 @@ void Game::render()
         SHIELD_ICON_X0 + i * SHIELD_ICON_DX,
         SHIELD_ICON_Y,
         SHIELD_ICON_W, SHIELD_ICON_H
-    );
+        );
+    }
+        const int pauseW = 120, pauseH = 45;
+        const int pauseX = SCREEN_WIDTH - pauseW - 10; // 370
+        const int pauseY = 40;
+        const bool hoverPause = onPauseBtn(xMouse, yMouse);
+        graphics.renderTexture(
+            graphics.pic[ hoverPause ? PAUSE_BUTTON : UNSELECT_PAUSE ],
+            pauseX, pauseY, pauseW, pauseH
+        );
 }
-
-     }
     else if(status==Menu)
     {
       graphics.renderTexture(graphics.pic[MENU],0,0);
@@ -458,6 +470,27 @@ void Game::render()
         graphics.renderTexture(graphics.pic[UNSELECT_EXIT], 150, 580);
         if (shopToExit(xMouse, yMouse))
         graphics.renderTexture(graphics.pic[EXIT_BUTTON], 150, 580);
+    }
+    else if (status == PauseGame)
+    {
+    graphics.renderTexture(graphics.pic[MENU], 0, 0);
+
+    SDL_Texture* t0 = graphics.renderText("GAME PAUSED", graphics.font, white);
+    graphics.renderTexture(t0, 150, 200);
+    SDL_DestroyTexture(t0);
+
+    SDL_Texture* t1 = graphics.renderText("Press P/ESC or click button to resume", graphics.font, white);
+    graphics.renderTexture(t1, 60, 240);
+    SDL_DestroyTexture(t1);
+
+    const int pauseW = 120, pauseH = 45;
+    const int pauseX = SCREEN_WIDTH - pauseW - 10;
+    const int pauseY = 40;
+    const bool hoverPause = onPauseBtn(xMouse, yMouse);
+    graphics.renderTexture(
+        graphics.pic[ hoverPause ? PAUSE_BUTTON : UNSELECT_PAUSE ],
+        pauseX, pauseY, pauseW, pauseH
+        );
     }
 }
 void Game::update()
@@ -587,8 +620,22 @@ void Game::run()
      {
          if(event.type==SDL_QUIT)
             status=QuitGame;
-         else if(event.type==SDL_KEYDOWN)
-            car.Mycarmove(event);
+         else if (event.type == SDL_KEYDOWN)
+            {
+                if (status == Start) {
+                    if (event.key.keysym.sym == SDLK_p || event.key.keysym.sym == SDLK_ESCAPE) {
+                        status = PauseGame;
+                    } else {
+                        car.Mycarmove(event);
+                    }
+                }
+                else if (status == PauseGame) {
+                    if (event.key.keysym.sym == SDLK_p || event.key.keysym.sym == SDLK_ESCAPE) {
+                        status = Start;
+                    }
+                }
+            }
+
          else if(event.type==SDL_MOUSEBUTTONDOWN)
          {
              if(status==Menu)
@@ -607,6 +654,16 @@ void Game::run()
                 else if(menuToExit(xMouse,yMouse))
                     status=QuitGame;
              }
+             else if(status==Start) {
+                if (onPauseBtn(xMouse, yMouse)) {
+                    status = PauseGame;
+                }
+            }
+            else if(status==PauseGame) {
+                if (onPauseBtn(xMouse, yMouse)) {
+                    status = Start;
+                }
+            }
              else if(status==Shop)
              {
                  if (shopBuyGreen(xMouse, yMouse)) {
