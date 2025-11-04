@@ -127,10 +127,17 @@ void Graphics::init()
 
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
         SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        int mixFlags = MIX_INIT_MP3 | MIX_INIT_OGG;
+        int initted  = Mix_Init(mixFlags);
+        if ((initted & mixFlags) != mixFlags) {
+        logErrorAndExit("SDL_mixer init", Mix_GetError());
+    }
+
         if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
         {
-                  logErrorAndExit( "SDL_mixer could not initialize! SDL_mixer Error: %s\n",
-                    Mix_GetError() );
+            logErrorAndExit( "SDL_mixer could not initialize! SDL_mixer Error: %s\n",
+            Mix_GetError() );
         }
         if (TTF_Init() == -1)
         {
@@ -274,6 +281,7 @@ SDL_Texture* Graphics::renderText(const char* text, TTF_Font* font, SDL_Color te
 
          TTF_Quit();
          Mix_Quit();
+         Mix_CloseAudio();
          IMG_Quit();
          SDL_DestroyRenderer(renderer);
          SDL_DestroyWindow(window);
