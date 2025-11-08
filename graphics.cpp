@@ -4,28 +4,28 @@ using namespace std;
 
 void Graphics::loadMedia()
 {
-    pic.push_back(loadTexture("assets/car.png"));
-    pic.push_back(loadTexture("assets/car2.png"));
-    pic.push_back(loadTexture("assets/car3.png"));
-    pic.push_back(loadTexture("assets/car4.png"));
-    pic.push_back(loadTexture("assets/car5.png"));
-    pic.push_back(loadTexture("assets/road9.jpg"));
-    pic.push_back(loadTexture("assets/bk2.png"));
-    pic.push_back(loadTexture("assets/heart.png"));
-    pic.push_back(loadTexture("assets/playbutton.png"));
-    pic.push_back(loadTexture("assets/unselectplay.png"));
-    pic.push_back(loadTexture("assets/exitbutton.png"));
-    pic.push_back(loadTexture("assets/unselectexit.png"));
-    pic.push_back(loadTexture("assets/title.png"));
-    pic.push_back(loadTexture("assets/gameover.jpg"));
-    pic.push_back(loadTexture("assets/big-explosion.png"));
-    pic.push_back(loadTexture("assets/shield1.png"));
-    pic.push_back(loadTexture("assets/yes.png"));
-    pic.push_back(loadTexture("assets/no.png"));
-    pic.push_back(loadTexture("assets/invisible_orb.png"));
+    pic.push_back(loadTexture("assets/car.png")); //1
+    pic.push_back(loadTexture("assets/car2.png"));   //2
+    pic.push_back(loadTexture("assets/car3.png"));   //3
+    pic.push_back(loadTexture("assets/car4.png"));   //4
+    pic.push_back(loadTexture("assets/car5.png"));   //5
+    pic.push_back(loadTexture("assets/road9.jpg"));  //6
+    pic.push_back(loadTexture("assets/bk2.png"));    //7
+    pic.push_back(loadTexture("assets/heart.png"));  //8
+    pic.push_back(loadTexture("assets/playbutton.png"));     //9
+    pic.push_back(loadTexture("assets/unselectplay.png"));   //10
+    pic.push_back(loadTexture("assets/exitbutton.png"));     //11
+    pic.push_back(loadTexture("assets/unselectexit.png"));   //12
+    pic.push_back(loadTexture("assets/title.png"));          //13
+    pic.push_back(loadTexture("assets/gameover.jpg"));       //14
+    pic.push_back(loadTexture("assets/big-explosion.png"));  //15
+    pic.push_back(loadTexture("assets/shield1.png"));        //16
+    pic.push_back(loadTexture("assets/yes.png"));            //17
+    pic.push_back(loadTexture("assets/no.png"));             //18
+    pic.push_back(loadTexture("assets/invisible_orb.png"));  //19
     if (pic.back()) SDL_SetTextureBlendMode(pic.back(), SDL_BLENDMODE_BLEND);
-    pic.push_back(loadTexture("assets/coin_strip.png"));
-    pic.push_back(loadTexture("assets/truck.png"));
+    pic.push_back(loadTexture("assets/coin_strip.png"));     //20
+    pic.push_back(loadTexture("assets/truck.png"));          //21
     pic.push_back(loadTexture("assets/shopbutton.png"));
     pic.push_back(loadTexture("assets/unselectshop.png"));
     pic.push_back(loadTexture("assets/shop_bg.png"));
@@ -34,8 +34,29 @@ void Graphics::loadMedia()
     pic.push_back(loadTexture("assets/car_white.png"));
     pic.push_back(loadTexture("assets/buybutton.png"));
     pic.push_back(loadTexture("assets/unselectbuy.png"));
-    pic.push_back(loadTexture("assets/pausebutton.png"));
-    pic.push_back(loadTexture("assets/unselectpause.png"));
+    pic.push_back(loadTexture("assets/pausebutton.png"));     //29
+    pic.push_back(loadTexture("assets/unselectpause.png"));   //30
+
+
+    pic.push_back(loadTexture("assets/mapbutton.png"));
+    pic.push_back(loadTexture("assets/unselectmap.png"));
+    pic.push_back(loadTexture("assets/map_bg.png"));
+    pic.push_back(loadTexture("assets/selectbutton.png"));
+
+    pic.push_back(loadTexture("assets/map_city_thumb.png")); //35
+
+    pic.push_back(loadTexture("assets/map_desert_bg.png"));
+    pic.push_back(loadTexture("assets/map_desert_thumb.png"));
+
+    pic.push_back(loadTexture("assets/map_sea_bg.png"));
+    pic.push_back(loadTexture("assets/map_sea_thumb.png"));
+
+    pic.push_back(loadTexture("assets/map_snow_bg.png"));
+    pic.push_back(loadTexture("assets/map_snow_thumb.png"));
+
+    pic.push_back(loadTexture("assets/unselectselect.png"));
+    pic.push_back(loadTexture("assets/poison_orb.png"));
+    pic.push_back(loadTexture("assets/cure_orb.png"));    //44
 
     font=loadFont("assets/DroidSans.ttf",18);
 

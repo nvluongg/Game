@@ -42,7 +42,20 @@ struct BossTruck {
     int laneIdx;
     float vy;
     SDL_Texture* texture;
+    int w = 0, h = 0;
 };
+struct PoisonOrb {
+    int x, y;
+    bool active = false;
+    void move();
+};
+
+struct CureOrb {
+    int x, y;
+    bool active = false;
+    void move();
+};
+
 
 
 bool checkCollision(int x1,int y1,int x2,int y2);
@@ -53,6 +66,8 @@ struct Game
 
     Mycar car;
     int currentSkin = MY_CAR;
+    int currentMap = MAP_CITY;
+    int mapBgTexIndex() const;
     Othercar ocar[4];
     Sprite sprite;
     Shield shield;
@@ -62,6 +77,12 @@ struct Game
     int coinCount = 0;
     BossTruck boss;
     int nextBossScore;
+    bool isPoisoned = false;
+    int poisonTimer = 0;
+    const int POISON_DURATION = 300;
+    PoisonOrb poison;
+    CureOrb cure;
+
 
 
     GameStatus status=Menu;
@@ -99,7 +120,13 @@ struct Game
     bool shopBuyPurple(int x, int y);
     bool shopBuyWhite(int x, int y);
 
+    bool menuToMap(int mx, int my);
+    bool mapToExit(int mx, int my);
+    bool mapSelectHover(int mx, int my, int cellIndex);
+    void renderMapScreen(int mx, int my);
+
     bool onPauseBtn(int x, int y);
+    bool onPauseExitBtn(int x, int y);
 
     bool overToPlayAgain(int x,int y);
     bool overToQuit(int x,int y);

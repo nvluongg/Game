@@ -81,6 +81,32 @@ void Coin::move() {
     }
 }
 
+void PoisonOrb::move() {
+    y += speed;
+    if (y > SCREEN_HEIGHT) {
+        y = - (rand() % 1000 + 500);
+        x = lane[rand() % 4];
+    }
+}
+
+void CureOrb::move() {
+    y += speed;
+    if (y > SCREEN_HEIGHT) {
+        y = - (rand() % 1000 + 800);
+        x = lane[rand() % 4];
+    }
+}
+
+
+int Game::mapBgTexIndex() const {
+    switch (currentMap) {
+        case MAP_CITY:   return TEX_ROAD9_BG;
+        case MAP_DESERT: return TEX_MAP_DESERT_BG;
+        case MAP_SEA:    return TEX_MAP_SEA_BG;
+        case MAP_SNOW:   return TEX_MAP_SNOW_BG;
+        default:         return TEX_ROAD9_BG;
+    }
+}
 
 
 void Game::set()
@@ -120,34 +146,56 @@ void Game::set()
     boss.x = lane[rand()%4];
     boss.y = -BOSS_H;
     nextBossScore = 200;
+    //poison and cure
+    poison.x = lane[rand()%4];
+    poison.y = -1000;
+    cure.x = lane[rand()%4];
+    cure.y = -2000;
+    isPoisoned = false;
+    poisonTimer = 0;
+
 
     //scores and speed
     scores=1;
     k=0;
     speed=3;
-    // font
+    // pause
+    Playerlives = 3;
+    isDead = false;
+    isExplode = false;
+
+    isInvisible = false;
+    invisibleTimer = 0;
+
+    delaygame = false;
+    delay = -1;
+
+    boss.active = false;
 }
 
 void Game::prepare()
-{   srand(time(NULL));
-    graphics.bk.setTexture(graphics.pic[BACKGROUND]);
+    {
+    srand(time(NULL));
+    graphics.bk.setTexture(graphics.pic[ mapBgTexIndex() ]);
     set();
     sprite.init(graphics.pic[14],EXPLODE_FRAMES,EXPLODE_CLIPS);
-    {
+        {
         int tw, th;
         SDL_QueryTexture(graphics.pic[COIN], nullptr, nullptr, &tw, &th);
         const int fw = tw / COIN_FRAMES, fh = th;
 
         static int COIN_CLIPS[COIN_FRAMES][4];
-        for (int i = 0; i < COIN_FRAMES; ++i) {
+        for (int i = 0; i < COIN_FRAMES; ++i)
+            {
             COIN_CLIPS[i][0] = i * fw; // x
             COIN_CLIPS[i][1] = 0;      // y
             COIN_CLIPS[i][2] = fw;     // w
             COIN_CLIPS[i][3] = fh;     // h
-        }
+            }
         coinSprite.init(graphics.pic[COIN], COIN_FRAMES, COIN_CLIPS);
+        }
     }
-}
+
 bool checkCollision(int x1,int y1,int x2,int y2)
 {
         if(x1==x2){
@@ -155,6 +203,17 @@ bool checkCollision(int x1,int y1,int x2,int y2)
                return true;
         }
 return false;
+}
+
+inline bool AABB(int x1, int y1, int w1, int h1,int x2, int y2, int w2, int h2)
+{
+    return !(x1 + w1 <= x2 || x2 + w2 <= x1 ||
+             y1 + h1 <= y2 || y2 + h2 <= y1);
+}
+
+static void calcBossRectForTwoLanes(int i, int& outX, int& outW) {
+    outX = lane[i];
+    outW = lanesize * 2 - 10;
 }
 
 void Game::getMousePos(int &x,int &y)
@@ -180,7 +239,7 @@ return false;
 }
 bool Game::menuToShop(int x,int y)
 {
-    if(xMouse>140&&xMouse<280&&yMouse>320&&yMouse<430)
+    if(xMouse>140&&xMouse<280&&yMouse>320&&yMouse<390)
     {
             return true;
           }
@@ -233,6 +292,80 @@ bool Game::onPauseBtn(int mx, int my) {
     const int y = 40;
     return (mx > x && mx < x + w && my > y && my < y + h);
 }
+
+bool Game::onPauseExitBtn(int mx, int my) {
+    const int w = 120, h = 45;
+    const int x = SCREEN_WIDTH - w - 10;
+    const int y = 40 + 45 + 10;
+    return (mx > x && mx < x + w && my > y && my < y + h);
+}
+
+bool Game::menuToMap(int mx, int my) {
+    int x = 150, y = 380, w = 200, h = 73;
+    return (mx > x && mx < x + w && my > y && my < y + h);
+}
+
+bool Game::mapToExit(int mx, int my) {
+    return (mx > MAP_EXIT_X && mx < MAP_EXIT_X + MAP_EXIT_W &&
+            my > MAP_EXIT_Y && my < MAP_EXIT_Y + MAP_EXIT_H);
+}
+
+bool Game::mapSelectHover(int mx, int my, int cellIndex) {
+    int col = (cellIndex % 2);
+    int row = (cellIndex / 2);
+    int X = (col == 0) ? MAP_GRID_X1 : MAP_GRID_X2;
+    int Y = (row == 0) ? MAP_GRID_Y1 : MAP_GRID_Y2;
+
+    bool inThumb =
+        (mx > X && mx < X + MAP_THUMB_W &&
+         my > Y && my < Y + MAP_THUMB_H);
+
+    int bx = X + (MAP_THUMB_W - MAP_BTN_W) / 2;
+    int by = Y + MAP_THUMB_H + MAP_BTN_DY;
+    bool inBtn =
+        (mx > bx && mx < bx + MAP_BTN_W &&
+         my > by && my < by + MAP_BTN_H);
+
+    return inThumb || inBtn;
+}
+
+void Game::renderMapScreen(int mx, int my) {
+
+    graphics.renderTexture(graphics.pic[TEX_MAP_WINDOW_BG], 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    struct Cell { int texThumb; const char* name; };
+    Cell cells[4] = {
+        { TEX_MAP_CITY_THUMB,   "CITY"  },
+        { TEX_MAP_DESERT_THUMB, "DESERT"},
+        { TEX_MAP_SEA_THUMB,    "SEA"   },
+        { TEX_MAP_SNOW_THUMB,   "SNOW"  }
+    };
+
+    for (int i = 0; i < 4; ++i) {
+        int col = (i % 2);
+        int row = (i / 2);
+        int X = (col == 0) ? MAP_GRID_X1 : MAP_GRID_X2;
+        int Y = (row == 0) ? MAP_GRID_Y1 : MAP_GRID_Y2;
+
+        graphics.renderTexture(graphics.pic[cells[i].texThumb], X, Y, MAP_THUMB_W, MAP_THUMB_H);
+
+        int bx = X + (MAP_THUMB_W - MAP_BTN_W) / 2;
+        int by = Y + MAP_THUMB_H + MAP_BTN_DY;
+        bool hov = mapSelectHover(mx, my, i);
+        int tex = hov ? TEX_SELECT_BUTTON : TEX_SELECT_BUTTON_UNSEL;
+        graphics.renderTexture(graphics.pic[tex], bx, by, MAP_BTN_W, MAP_BTN_H);
+
+        SDL_Texture* t = graphics.renderText(cells[i].name, graphics.font, white);
+        graphics.renderTexture(t, X + 8, Y + 8);
+        SDL_DestroyTexture(t);
+    }
+
+    bool hovExit = mapToExit(mx, my);
+    graphics.renderTexture(graphics.pic[ hovExit ? TEX_EXIT_BUTTON : UNSELECT_EXIT ],
+                           MAP_EXIT_X, MAP_EXIT_Y, MAP_EXIT_W, MAP_EXIT_H);
+}
+
+
 bool Game::overToPlayAgain(int x,int y)
 {
      if(xMouse>187&&xMouse<240&&yMouse>431&&yMouse<442)
@@ -327,8 +460,11 @@ void Game::render()
       graphics.renderTexture(coinText, 10, 40);
       SDL_DestroyTexture(coinText);
 
-      if (boss.active)
-        graphics.renderTexture(boss.texture, boss.x, boss.y, BOSS_W, BOSS_H);
+    if (boss.active)
+    {
+    graphics.renderTexture(graphics.pic[TRUCK],boss.x, boss.y, boss.w, boss.h);
+    }
+
 
       for(int i=0;i<4;i++)
     {
@@ -357,6 +493,27 @@ void Game::render()
             graphics.pic[ hoverPause ? PAUSE_BUTTON : UNSELECT_PAUSE ],
             pauseX, pauseY, pauseW, pauseH
         );
+
+        if (currentMap == MAP_DESERT) {
+            graphics.renderTexture(graphics.pic[POISON_ORB], poison.x, poison.y, 60, 60);
+            graphics.renderTexture(graphics.pic[CURE_ORB], cure.x, cure.y, 60, 60);
+        }
+        if (isPoisoned) {
+            int barW = 20;
+            int barH = 100;
+            int barX = SCREEN_WIDTH - 40;
+            int barY = SCREEN_HEIGHT - 150;
+
+            SDL_SetRenderDrawColor(graphics.renderer, 0, 0, 0, 255);
+            SDL_Rect bg = { barX, barY, barW, barH };
+            SDL_RenderFillRect(graphics.renderer, &bg);
+
+            float ratio = (float)poisonTimer / POISON_DURATION;
+            int fillH = (int)(barH * ratio);
+            SDL_SetRenderDrawColor(graphics.renderer, 0, 255, 0, 255);
+            SDL_Rect fill = { barX, barY + (barH - fillH), barW, fillH };
+            SDL_RenderFillRect(graphics.renderer, &fill);
+        }
 }
     else if(status==Menu)
     {
@@ -368,6 +525,8 @@ void Game::render()
       if(menuToStart(xMouse,yMouse)) graphics.renderTexture(graphics.pic[PLAY_BUTTON],150,140);
       if(menuToExit(xMouse,yMouse)) graphics.renderTexture(graphics.pic[EXIT_BUTTON],150,220);
       if(menuToShop(xMouse,yMouse)) graphics.renderTexture(graphics.pic[SHOP_BUTTON],150,300, 200, 73);
+      bool hov = menuToMap(xMouse, yMouse);
+      graphics.renderTexture(graphics.pic[ hov ? TEX_MAP_BUTTON : TEX_MAP_BUTTON_UNSEL ],150, 380, 200, 73);
     }
     else if(status==GameOver)
     {
@@ -382,26 +541,21 @@ void Game::render()
    }
    else if(status == Shop)
     {
-        // Nền shop full
         graphics.renderTexture(graphics.pic[SHOP_BG], 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        // Kích thước xe theo ý bạn:
         const int carW = 100;
         const int carH = 150;
 
-        // Tọa độ 4 xe
         const int xGreen  = 60;   const int yGreen  = 120;  // MY_CAR
         const int xBlack  = 280;  const int yBlack  = 120;  // CAR_BLACK
         const int xPurple = 60;   const int yPurple = 320;  // CAR_PURPLE
         const int xWhite  = 280;  const int yWhite  = 320;  // CAR_WHITE
 
-        // Vẽ xe
         graphics.renderTexture(graphics.pic[MY_CAR],      xGreen,  yGreen,  carW, carH);
         graphics.renderTexture(graphics.pic[CAR_BLACK],   xBlack,  yBlack,  carW, carH);
         graphics.renderTexture(graphics.pic[CAR_PURPLE],  xPurple, yPurple, carW, carH);
         graphics.renderTexture(graphics.pic[CAR_WHITE],   xWhite,  yWhite,  carW, carH);
 
-        // Vẽ giá ("0VND") giữ đúng vị trí bạn đang có
         SDL_Texture* t1 = graphics.renderText("0VND", graphics.font, white);
         graphics.renderTexture(t1,  90, 250);
         SDL_DestroyTexture(t1);
@@ -418,13 +572,11 @@ void Game::render()
         graphics.renderTexture(t4, 310, 450);
         SDL_DestroyTexture(t4);
 
-        // ===== NÚT BUY CHO TỪNG XE =====
         const int buyW = 110;
         const int buyH = 40;
 
-        // Xe xanh
         int buyGreenX = 60;
-        int buyGreenY = 270; // ngay sau "0VND" của xe xanh
+        int buyGreenY = 270;
         bool hoverGreen =
             (xMouse > buyGreenX && xMouse < buyGreenX + buyW &&
              yMouse > buyGreenY && yMouse < buyGreenY + buyH);
@@ -433,7 +585,6 @@ void Game::render()
             buyGreenX, buyGreenY, buyW, buyH
         );
 
-        // Xe đen
         int buyBlackX = 280;
         int buyBlackY = 270;
         bool hoverBlack =
@@ -444,7 +595,6 @@ void Game::render()
             buyBlackX, buyBlackY, buyW, buyH
         );
 
-        // Xe tím
         int buyPurpleX = 60;
         int buyPurpleY = 470;
         bool hoverPurple =
@@ -455,7 +605,6 @@ void Game::render()
             buyPurpleX, buyPurpleY, buyW, buyH
         );
 
-        // Xe trắng
         int buyWhiteX = 280;
         int buyWhiteY = 470;
         bool hoverWhite =
@@ -466,7 +615,7 @@ void Game::render()
             buyWhiteX, buyWhiteY, buyW, buyH
         );
 
-        // ===== nút EXIT =====
+
         graphics.renderTexture(graphics.pic[UNSELECT_EXIT], 150, 580);
         if (shopToExit(xMouse, yMouse))
         graphics.renderTexture(graphics.pic[EXIT_BUTTON], 150, 580);
@@ -487,10 +636,17 @@ void Game::render()
     const int pauseX = SCREEN_WIDTH - pauseW - 10;
     const int pauseY = 40;
     const bool hoverPause = onPauseBtn(xMouse, yMouse);
-    graphics.renderTexture(
-        graphics.pic[ hoverPause ? PAUSE_BUTTON : UNSELECT_PAUSE ],
-        pauseX, pauseY, pauseW, pauseH
-        );
+    graphics.renderTexture(graphics.pic[ hoverPause ? PAUSE_BUTTON : UNSELECT_PAUSE ],pauseX, pauseY, pauseW, pauseH);
+
+    const int w = 120, h = 45;
+    const int x = SCREEN_WIDTH - w - 10;
+    const int y = 40 + 45 + 10;
+    const bool hovExit = onPauseExitBtn(xMouse, yMouse);
+    graphics.renderTexture(graphics.pic[ hovExit ? TEX_EXIT_BUTTON : UNSELECT_EXIT ],x, y, w, h);
+    }
+    else if (status == Map)
+    {
+    renderMapScreen(xMouse, yMouse);
     }
 }
 void Game::update()
@@ -568,38 +724,86 @@ void Game::update()
             }
         }
 //truck
-        if (!boss.active && scores >= nextBossScore) {
-            boss.active = true;
-            int i = rand() % 3;
-            boss.x = lane[i] - ( (BOSS_W - lanesize) / 2 );
-            boss.y = -BOSS_H;
-            boss.vy = speed + BOSS_SPEED_ADD;
+    if (!boss.active && scores >= nextBossScore)
+    {
+    boss.active = true;
+
+    int i = rand() % 3;
+    int bw;
+    calcBossRectForTwoLanes(i, boss.x, bw);
+
+    boss.y  = -BOSS_H;
+    boss.vy = speed + BOSS_SPEED_ADD;
+    boss.w  = bw;
+    boss.h  = BOSS_H;
+    }
+
+    if (boss.active)
+    {
+        boss.y += boss.vy;
+
+        for (int i = 0; i < 4; ++i) {
+            if (AABB(ocar[i].x, ocar[i].y + 50, lanesize, carsizey,
+                     boss.x, boss.y, BOSS_W, BOSS_H)) {
+                ocar[i].y -= 400;
+            }
         }
-        if (boss.active) {
-            boss.y += boss.vy;
 
-            for (int i = 0; i < 4; ++i)
-                if (ocar[i].x == boss.x && checkCollision(ocar[i].x, ocar[i].y+50, boss.x, boss.y))
-                    ocar[i].y -= 400;
+        if (!isInvisible && AABB(car.x, car.y, carsizex, carsizey,boss.x, boss.y, boss.w, boss.h))
+        {
+            xboom = boss.x;
+            yboom = boss.y;
+            isExplode = true;
+            graphics.play(graphics.sound[2]);
 
-            if (!isInvisible && checkCollision(car.x, car.y, boss.x, boss.y)) {
-                xboom = boss.x; yboom = boss.y; isExplode = true;
+            if (shieldCount > 0) --shieldCount;
+            else Playerlives -= 2;
+
+            boss.active = false;
+            nextBossScore += BOSS_SCORE_STEP;
+
+            if (Playerlives < 0) {
+                delaygame = true;
+                isDead = true;
+            }
+        }
+
+
+        if (boss.y > SCREEN_HEIGHT) {
+            boss.active = false;
+            nextBossScore += BOSS_SCORE_STEP;
+        }
+    }
+
+//poison and cure
+    if (currentMap == MAP_DESERT) {
+        poison.move();
+        if (!isPoisoned && checkCollision(poison.x, poison.y - 80, car.x, car.y)) {
+            isPoisoned = true;
+            poisonTimer = POISON_DURATION;
+            poison.y = -2000;
+            graphics.play(graphics.sound[3]);
+        }
+
+        cure.move();
+        if (isPoisoned && checkCollision(cure.x, cure.y - 80, car.x, car.y)) {
+            isPoisoned = false;
+            poisonTimer = 0;
+            cure.y = -2500;
+            graphics.play(graphics.sound[3]);
+        }
+
+        if (isPoisoned) {
+            poisonTimer--;
+            if (poisonTimer <= 0) {
+                isPoisoned = false;
+                Playerlives--;
                 graphics.play(graphics.sound[2]);
-                if (shieldCount > 0) {
-                    --shieldCount;
-                } else {
-                    Playerlives -= 2;
-                }
-                boss.active = false;
-                nextBossScore += BOSS_SCORE_STEP;
-                if (Playerlives < 0) { delaygame = true; isDead = true; }
-            }
-
-            if (boss.y > SCREEN_HEIGHT) {
-                boss.active = false;
-                nextBossScore += BOSS_SCORE_STEP;
             }
         }
+    }
+
+
 
 //dead
         if (!isDead)
@@ -650,6 +854,9 @@ void Game::run()
                  {
                     status=Shop;
                  }
+                 else if (menuToMap(xMouse, yMouse)) {
+                    status = Map;
+                 }
                  //
                 else if(menuToExit(xMouse,yMouse))
                     status=QuitGame;
@@ -659,11 +866,27 @@ void Game::run()
                     status = PauseGame;
                 }
             }
-            else if(status==PauseGame) {
+            else if (status == PauseGame) {
                 if (onPauseBtn(xMouse, yMouse)) {
                     status = Start;
+                } else if (onPauseExitBtn(xMouse, yMouse)) {
+                    set();
+                    Playerlives = 3;
+                    isDead = false;
+                    isExplode = false;
+
+                    isInvisible = false;
+                    invisibleTimer = 0;
+
+                    delaygame = false;
+                    delay = -1;
+
+                    status = Menu;
+                    Mix_HaltMusic();
+                    musicStarted = false;
                 }
             }
+
              else if(status==Shop)
              {
                  if (shopBuyGreen(xMouse, yMouse)) {
@@ -683,6 +906,23 @@ void Game::run()
                      status = Menu;
                  }
              }
+             else if (status == Map)
+            {
+                for (int i = 0; i < 4; ++i) {
+                    if (mapSelectHover(xMouse, yMouse, i)) {
+                        currentMap = (MapId)i;
+
+                        graphics.bk.setTexture(graphics.pic[ mapBgTexIndex() ]);
+
+                        status = Menu;
+                        break;
+                    }
+                }
+                if (mapToExit(xMouse, yMouse)) {
+                    status = Menu;
+                }
+            }
+
              else if((status==GameOver))
              {
                  if(overToPlayAgain(xMouse,yMouse))

@@ -69,12 +69,57 @@ const int xHeart[3]={10,35,60};
 #define SHIELD_ICON_X0 80
 #define SHIELD_ICON_Y 8
 #define SHIELD_ICON_DX 24
+//map
+#define TEX_ROAD9_BG       5
+#define TEX_EXIT_BUTTON    10
+#define TEX_MAP_BUTTON         31
+#define TEX_MAP_BUTTON_UNSEL   32
+#define TEX_MAP_WINDOW_BG      33
+#define TEX_SELECT_BUTTON      34
+
+#define TEX_MAP_CITY_THUMB     35
+
+#define TEX_MAP_DESERT_BG      36
+#define TEX_MAP_DESERT_THUMB   37
+#define TEX_MAP_SEA_BG         38
+#define TEX_MAP_SEA_THUMB      39
+
+#define TEX_MAP_SNOW_BG        40
+#define TEX_MAP_SNOW_THUMB     41
+#define TEX_SELECT_BUTTON_UNSEL  42
+#define POISON_ORB 43
+#define CURE_ORB   44
+
+
+#define MAP_GRID_X1   40
+#define MAP_GRID_Y1   150
+#define MAP_GRID_X2   270
+#define MAP_GRID_Y2   380
+#define MAP_THUMB_W   180
+#define MAP_THUMB_H   120
+#define MAP_BTN_W     120
+#define MAP_BTN_H     45
+#define MAP_BTN_DY    10
+#define MAP_EXIT_X    190
+#define MAP_EXIT_Y    600
+#define MAP_EXIT_W    120
+#define MAP_EXIT_H    45
+
+
+enum MapId {
+    MAP_CITY = 0,
+    MAP_DESERT = 1,
+    MAP_SEA = 2,
+    MAP_SNOW = 3
+};
+
 
 enum GameStatus{
       Menu,
       Start,
       GameOver,
       Shop,
+      Map,
       PauseGame,
       QuitGame
 };
